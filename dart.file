@@ -1,0 +1,140 @@
+abstract class Payable {
+  double calculateTotal();
+}
+
+mixin PointsEarner {
+  int points = 0;
+
+  void earnPoints(double amountSpent) {
+    int earned = amountSpent ~/ 10; // 1 point per P10 spent
+    points += earned;
+    print('Earned $earned point(s). Total points: $points');
+  }
+}
+
+class CoffeeOrder implements Payable {
+  String customerName;
+  String coffeeName;
+  double _price;
+
+  CoffeeOrder(this.customerName, this.coffeeName, this._price);
+
+  double get price => _price;
+
+  void updatePrice(double newPrice) {
+    if (newPrice > 0) {
+      _price = newPrice;
+    }
+  }
+
+  @override
+  double calculateTotal() => price;
+
+  void displayOrder() {
+    print('Customer: $customerName');
+    print('Coffee: $coffeeName');
+    print('Price: P${price.toStringAsFixed(2)}');
+    print('Total: P${calculateTotal().toStringAsFixed(2)}');
+    print('-------------------');
+  }
+
+
+  Future<String> saveOrder() async {
+    await Future.delayed(Duration(seconds: 2));
+    return 'Order for $customerName ($coffeeName) saved. '
+        'Total: P${calculateTotal().toStringAsFixed(2)}';
+  }
+}
+
+
+class DineInOrder extends CoffeeOrder {
+  int tableNumber;
+
+  DineInOrder(super.customerName, super.coffeeName, super.price, this.tableNumber);
+
+  @override
+  double calculateTotal() => price * 1.05;
+
+  @override
+  void displayOrder() {
+    print('Type: Dine-in (Table $tableNumber)');
+    super.displayOrder();
+  }
+
+
+  @override
+  Future<String> saveOrder() async {
+    await Future.delayed(Duration(seconds: 3));
+    return 'Dine-in order for Table $tableNumber saved. '
+        'Total: P${calculateTotal().toStringAsFixed(2)}';
+  }
+}
+
+
+class TakeoutOrder extends CoffeeOrder {
+  static const double packagingFee = 5.00;
+
+  TakeoutOrder(super.customerName, super.coffeeName, super.price);
+
+  @override
+  double calculateTotal() => price + packagingFee;
+
+  @override
+  void displayOrder() {
+    print('Type: Takeout (includes P${packagingFee.toStringAsFixed(2)} packaging)');
+    super.displayOrder();
+  }
+}
+
+class LoyaltyCard with PointsEarner {
+  String memberName;
+
+  LoyaltyCard(this.memberName);
+}
+
+Future<void> main() async {
+  CoffeeOrder order1 = DineInOrder('Erie', 'Iced Coffee', 100.00, 4);
+  CoffeeOrder order2 = TakeoutOrder('Ryy', 'Cappuccino', 120.00);
+  CoffeeOrder order3 = CoffeeOrder('Sam', 'Americano', 90.00);
+
+  List<CoffeeOrder> orders = [order1, order2, order3];
+
+  print('--- Orders ---');
+  for (CoffeeOrder order in orders) {
+    order.displayOrder();
+  }
+
+  print('--- Payable totals ---');
+  List<Payable> payables = orders;
+  for (Payable p in payables) {
+    print('Total due: P${p.calculateTotal().toStringAsFixed(2)}');
+  }
+
+  print('\n--- Updated Order ---');
+  order1.updatePrice(120.00);
+  order1.displayOrder();
+
+  print('--- Loyalty Card (mixin) ---');
+  LoyaltyCard card = LoyaltyCard('Erie');
+  card.earnPoints(order1.calculateTotal());
+
+
+  print('\n--- Async save ---');
+
+
+  print('Saving order 1... (printed BEFORE the await)');
+  Future<String> pending = order1.saveOrder();
+
+ 
+  print('Meanwhile, the program keeps running...');
+
+
+  String result = await pending;
+  print(result);
+
+
+  print('Saving order 2...');
+  print(await order2.saveOrder());
+
+  print('All orders saved!');
+}
