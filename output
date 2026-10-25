@@ -1,0 +1,40 @@
+--- Orders ---
+Type: Dine-in (Table 4)
+Customer: Erie
+Coffee: Iced Coffee
+Price: P100.00
+Total: P105.00
+-------------------
+Type: Takeout (includes P5.00 packaging)
+Customer: Ryy
+Coffee: Cappuccino
+Price: P120.00
+Total: P125.00
+-------------------
+Customer: Sam
+Coffee: Americano
+Price: P90.00
+Total: P90.00
+-------------------
+--- Payable totals ---
+Total due: P105.00
+Total due: P125.00
+Total due: P90.00
+
+--- Updated Order ---
+Type: Dine-in (Table 4)
+Customer: Erie
+Coffee: Iced Coffee
+Price: P120.00
+Total: P126.00
+-------------------
+--- Loyalty Card (mixin) ---
+Earned 12 point(s). Total points: 12
+
+--- Async save ---
+Saving order 1... (printed BEFORE the await)
+Meanwhile, the program keeps running...
+Dine-in order for Table 4 saved. Total: P126.00
+Saving order 2...
+Order for Ryy (Cappuccino) saved. Total: P125.00
+All orders saved!
